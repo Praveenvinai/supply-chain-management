@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supply-Chain Management System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f7f6; /* Light gray background for a professional look */
+        min-height: 100vh;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 25px; /* Slightly reduced padding */
+        animation: fadeInUp 1s ease-out;
+      }
+
+      header {
+        background: #ffffff; /* Clean white header */
+        padding: 30px; /* Reduced padding */
+        border-radius: 10px; /* Slightly less rounded for a more formal feel */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+        margin-bottom: 30px; /* Reduced margin */
+        border-bottom: 4px solid #0056b3; /* Strong blue accent line */
+        position: relative;
+        overflow: hidden;
+      }
+
+      h1 {
+        text-align: center;
+        color: #003366; /* Deep blue for headings */
+        font-size: 2.8rem; /* Slightly reduced font size */
+        font-weight: 800;
+        text-transform: uppercase; /* Uppercase for a strong business feel */
+        letter-spacing: 2px;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px; /* Reduced gap */
+        margin-top: 25px;
+      }
+
+      .main-section {
+        display: flex;
+        flex-direction: column;
+        gap: 25px; /* Reduced gap */
+      }
+
+      .section {
+        background: #ffffff; /* Clean white background for sections */
+        padding: 25px; /* Reduced padding */
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        border-left: 4px solid #3498db; /* Blue accent border */
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .section:hover {
+        transform: translateY(-4px); /* Slight lift on hover */
+        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+        border-left-color: #2980b9; /* Darker blue on hover */
+      }
+
+      .section > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      .section h2 {
+        color: #003366;
+        font-size: 1.7rem; /* Slightly reduced font size */
+        margin-bottom: 20px; /* Reduced margin */
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Reduced gap */
+        font-weight: 700;
+        border-bottom: 1px solid #eee; /* Subtle separator */
+        padding-bottom: 12px; /* Reduced padding */
+      }
+
+      /* Specific icon styling and animations */
+      .section:nth-child(1) h2::before { /* Update Stock - 📦 */
+          content: '📦';
+          font-size: 1.4rem;
+          color: #27ae60; /* Green for stock */
+          animation: bounce 1s infinite alternate;
+      }
+
+      .section:nth-child(2) h2::before { /* Update Sales - 📊 */
+          content: '📊';
+          font-size: 1.4rem;
+          color: #e67e22; /* Orange for sales */
+          animation: rotateScale 1.5s infinite ease-in-out;
+      }
+
+      .section:nth-child(3) h2::before { /* Analyze Inventory - 📈 */
+          content: '📈';
+          font-size: 1.4rem;
+          color: #3498db; /* Blue for analysis */
+          animation: pulseIcon 2s infinite ease-in-out;
+      }
+
+      .section:nth-child(4) h2::before { /* Stock Chart - 📊 */
+          content: '📊';
+          font-size: 1.4rem;
+          color: #27ae60; /* Green for stock chart */
+          animation: rotateScale 1.5s infinite ease-in-out;
+      }
+
+      .section:nth-child(5) h2::before { /* Sales Chart - 📈 */
+          content: '📈';
+          font-size: 1.4rem;
+          color: #e67e22; /* Orange for sales chart */
+          animation: pulseIcon 2s infinite ease-in-out;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Reduced gap */
+      }
+
+      input {
+        padding: 15px 20px; /* Reduced padding */
+        border: 1px solid #ced4da; /* Soft gray border */
+        border-radius: 7px; /* Less rounded */
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa; /* Off-white background */
+        color: #333;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #0056b3; /* Deep blue on focus */
+        box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2); /* Subtle blue glow */
+        background: #ffffff;
+      }
+
+      input::placeholder {
+        color: #6c757d;
+      }
+
+      input:focus::placeholder {
+        color: #0056b3;
+      }
+
+      button {
+        padding: 15px 25px; /* Reduced padding */
+        background: #0056b3; /* Solid deep blue */
+        color: white;
+        border: none;
+        border-radius: 7px;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.5px;
+        text-transform: uppercase; /* Uppercase for buttons */
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.15); /* Subtle white overlay for shine */
+        transition: left 0.4s;
+      }
+
+      button:hover::before {
+        left: 100%;
+      }
+
+      button:hover {
+        background: #004085; /* Darker blue on hover */
+        box-shadow: 0 5px 18px rgba(0, 86, 179, 0.3);
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .chatbot-section {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 25px; /* Reduced padding */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        position: relative;
+        overflow: hidden;
+        border-top: 4px solid #6f42c1; /* Purple accent */
+      }
+
+      .chatbot-section h2 {
+        color: #003366;
+        font-size: 1.7rem; /* Slightly reduced font size */
+        margin-bottom: 20px; /* Reduced margin */
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Reduced gap */
+        font-weight: 700;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 12px; /* Reduced padding */
+      }
+
+      .chatbot-section h2::before {
+        content: "💬";
+        font-size: 1.4rem;
+        color: #6f42c1; /* Purple for chatbot */
+        animation: floatChat 2s infinite ease-in-out alternate;
+      }
+
+      #chatbox {
+        height: 380px; /* Slightly reduced height */
+        border: 1px solid #e9ecef; /* Light gray border */
+        padding: 20px; /* Reduced padding */
+        overflow-y: auto;
+        margin-bottom: 20px; /* Reduced margin */
+        background: #fcfdff; /* Very light background for chat area */
+        border-radius: 9px;
+      }
+
+      #chatbox::-webkit-scrollbar {
+        width: 7px; /* Slightly thinner scrollbar */
+      }
+
+      #chatbox::-webkit-scrollbar-track {
+        background: #f0f2f5;
+        border-radius: 10px;
+      }
+
+      #chatbox::-webkit-scrollbar-thumb {
+        background: #aab8c2; /* Muted scrollbar thumb */
+        border-radius: 10px;
+      }
+
+      .user-message {
+        background: #0056b3; /* Solid deep blue */
+        color: white;
+        padding: 12px 18px; /* Reduced padding */
+        border-radius: 15px 15px 5px 15px;
+        margin-bottom: 12px; /* Reduced margin */
+        max-width: 80%; /* Slightly reduced max-width */
+        margin-left: auto;
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.1);
+        animation: slideInRight 0.5s ease-out;
+      }
+
+      .markdown-content {
+        background: #e9ecef; /* Light gray for bot messages */
+        color: #333;
+        padding: 12px 18px; /* Reduced padding */
+        border-radius: 15px 15px 15px 5px;
+        margin-bottom: 12px; /* Reduced margin */
+        max-width: 80%; /* Slightly reduced max-width */
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+        border-left: 3px solid #3498db; /* Blue accent */
+        animation: slideInLeft 0.5s ease-out;
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInLeft {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      #preloadedQuestions {
+        margin-bottom: 20px; /* Reduced margin */
+        padding: 20px; /* Reduced padding */
+        background: #f0f4f7; /* Lighter background for suggestions */
+        border-radius: 9px;
+        border: 1px solid #e0e4e7;
+      }
+
+      #preloadedQuestions p {
+        margin-bottom: 15px; /* Reduced margin */
+        font-weight: 600;
+        color: #555;
+        font-size: 1rem;
+      }
+
+      .quick-question {
+        margin: 5px 5px 5px 0; /* Reduced margin */
+        padding: 8px 15px; /* Reduced padding */
+        background: #e9eff4; /* Light blue for quick questions */
+        color: #0056b3;
+        border: 1px solid #a8d5ee;
+        border-radius: 18px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .quick-question:hover {
+        background: #0056b3;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0, 86, 179, 0.2);
+      }
+
+      #chatForm {
+        display: flex;
+        gap: 10px; /* Reduced gap */
+        margin-bottom: 20px; /* Reduced margin */
+      }
+
+      #userInput {
+        flex: 1;
+        margin: 0;
+      }
+
+      #chatForm button {
+        width: 80px; /* Slightly smaller button */
+        margin: 0;
+        background: #6f42c1; /* Purple for send button */
+      }
+      #chatForm button:hover {
+        background: #5a359b;
+        box-shadow: 0 5px 18px rgba(111, 66, 193, 0.3);
+      }
+
+
+      #chatHistoryButtons {
+        display: flex;
+        gap: 10px; /* Reduced gap */
+      }
+
+      #chatHistoryButtons button {
+        flex: 1;
+        padding: 10px; /* Reduced padding */
+        font-size: 14px;
+        background: #28a745; /* Green for download chat */
+      }
+      #chatHistoryButtons button:hover {
+        background: #218838;
+        box-shadow: 0 5px 18px rgba(40, 167, 69, 0.3);
+      }
+
+
+      .transportation-section {
+        background: #ffffff;
+        padding: 25px; /* Reduced padding */
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #ffc107; /* Orange accent */
+        margin-top: 25px; /* Reduced margin */
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .transportation-section:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.1);
+        border-left-color: #e0a800; /* Darker orange on hover */
+      }
+
+      .transportation-section h2 {
+        color: #003366;
+        font-size: 1.7rem; /* Slightly reduced font size */
+        margin-bottom: 20px; /* Reduced margin */
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Reduced gap */
+        font-weight: 700;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 12px; /* Reduced padding */
+      }
+
+      .transportation-section h2::before {
+        content: "🚚";
+        font-size: 1.4rem;
+        color: #ffc107; /* Orange for transportation */
+        animation: truckDrive 3s linear infinite;
+      }
+
+      #routeMap {
+        width: 100%;
+        height: 300px; /* Slightly reduced height */
+        border: 1px solid #e1e8ed;
+        margin-top: 18px; /* Reduced margin */
+        border-radius: 9px;
+        background: #f8f9fa; /* Light background for map area */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 17px;
+        font-weight: 600;
+        box-shadow: inset 0 0 7px rgba(0,0,0,0.05); /* Inner shadow for depth */
+      }
+
+      #results {
+        margin-top: 20px; /* Reduced margin */
+        padding: 20px; /* Reduced padding */
+        background: #fcfdff;
+        border-radius: 9px;
+        border-left: 3px solid #28a745; /* Green for success/analysis */
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.05);
+      }
+
+      #routeResults {
+        margin-top: 20px; /* Reduced margin */
+        padding: 20px; /* Reduced padding */
+        background: #fcfdff;
+        border-radius: 9px;
+        border-left: 3px solid #ffc107; /* Orange for route results */
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.05);
+      }
+
+      .download-buttons {
+        display: flex;
+        gap: 15px; /* Reduced gap */
+        margin-top: 20px; /* Reduced margin */
+      }
+
+      .download-buttons button {
+        flex: 1;
+        background: #28a745; /* Green for download buttons */
+      }
+
+      .download-buttons button:hover {
+        background: #218838;
+        box-shadow: 0 5px 18px rgba(40, 167, 69, 0.3);
+      }
+
+      canvas {
+        border-radius: 9px;
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+      }
+
+      .error {
+        color: #dc3545;
+        font-weight: 600;
+        padding: 12px; /* Reduced padding */
+        background: #fff0f0; /* Light red background for error */
+        border-radius: 7px;
+        border-left: 3px solid #dc3545;
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* New Icon Animations */
+      @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+      }
+
+      @keyframes rotateScale {
+          0% { transform: rotate(0deg) scale(1); }
+          50% { transform: rotate(12deg) scale(1.08); }
+          100% { transform: rotate(0deg) scale(1); }
+      }
+
+      @keyframes pulseIcon {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.15); opacity: 0.85; }
+      }
+
+      @keyframes floatChat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+      }
+
+      @keyframes truckDrive {
+          0% { transform: translateX(0); }
+          50% { transform: translateX(4px); }
+          100% { transform: translateX(0); }
+      }
+
+
+      .section {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .section:nth-child(1) { animation-delay: 0.1s; }
+      .section:nth-child(2) { animation-delay: 0.2s; }
+      .section:nth-child(3) { animation-delay: 0.3s; }
+      .section:nth-child(4) { animation-delay: 0.4s; }
+      .section:nth-child(5) { animation-delay: 0.5s; }
+      .transportation-section { animation-delay: 0.6s; }
+      .chatbot-section { animation-delay: 0.7s; }
+
+
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+        
+        .container {
+          padding: 15px;
+        }
+        
+        h1 {
+          font-size: 2.2rem;
+        }
+        
+        .section {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.8rem;
+        }
+        
+        .section {
+          padding: 18px;
+        }
+        
+        #chatbox {
+          height: 300px;
+        }
+        
+        .download-buttons {
+          flex-direction: column;
+        }
+
+        .chatbot-section, .transportation-section {
+          padding: 20px;
+        }
+
+        .section h2, .chatbot-section h2, .transportation-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            padding: 12px 18px;
+            font-size: 15px;
+        }
+        .quick-question {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Supply-Chain Management System</h1>
+      </header>
+
+      <div class="content">
+        <div class="main-section">
+          <div class="section">
+            <h2>📦 Update Stock</h2>
+            <form id="stockForm">
+              <input type="text" id="stockProductId" placeholder="Product ID" required />
+              <input type="number" id="stockQuantity" placeholder="Quantity" required />
+              <button type="submit">Update Stock</button>
+            </form>
+          </div>
+
+          <div class="section">
+            <h2>📊 Update Sales</h2>
+            <form id="salesForm">
+              <input type="text" id="salesProductId" placeholder="Product ID" required />
+              <input type="number" id="salesQuantity" placeholder="Quantity" required />
+              <button type="submit">Update Sales</button>
+            </form>
+          </div>
+
+          <div class="section">
+            <h2>📈 Analyze Inventory</h2>
+            <button id="analyzeButton">Analyze</button>
+            <div id="results"></div>
+            <div class="download-buttons">
+              <button id="downloadText">📄 Download as Text</button>
+              <button id="downloadPDF">📋 Download as PDF</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>📊 Stock Chart</h2>
+            <canvas id="stockChart" width="400" height="200"></canvas>
+          </div>
+          
+          <div class="section">
+            <h2>📈 Sales Chart</h2>
+            <canvas id="salesChart" width="400" height="200"></canvas>
+          </div>
+
+          <div class="transportation-section">
+            <h2>🚚 Transportation Management</h2>
+            <form id="transportForm">
+              <input type="text" id="startPoint" placeholder="Starting Point" required />
+              <input type="text" id="destination" placeholder="Destination" required />
+              <button type="submit">Find Route</button>
+            </form>
+            <div id="routeResults"></div>
+            <map name="routeMap" id="routeMap">Route Map will appear here</map>
+          </div>
+        </div>
+
+        <div class="chatbot-section">
+          <h2>💬 Chatbot</h2>
+          <div id="chatbox"></div>
+
+          <div id="preloadedQuestions">
+            <p><strong>💡 Try asking:</strong></p>
+            <button class="quick-question">How to increase sales?</button>
+            <button class="quick-question">Tips for inventory control</button>
+            <button class="quick-question">Best way to reduce losses</button>
+          </div>
+
+          <form id="chatForm">
+            <input type="text" id="userInput" placeholder="Ask a question..." required />
+            <button type="submit">Send</button>
+          </form>
+
+          <div id="chatHistoryButtons">
+            <button id="downloadChat">💾 Download Chat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // 💬 Store chat history
+        let chatLog = [];
+
+        // Update Stock
+        $("#stockForm").submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            url: "/update_stock",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              product_id: $("#stockProductId").val(),
+              quantity: parseInt($("#stockQuantity").val()),
+            }),
+            success: function (response) {
+              alert(response.message);
+            },
+            error: function (xhr) {
+              alert("Error: " + xhr.responseJSON.error);
+            },
+          });
+        });
+
+        // Update Sales
+        $("#salesForm").submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            url: "/update_sales",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              product_id: $("#salesProductId").val(),
+              quantity: parseInt($("#salesQuantity").val()),
+            }),
+            success: function (response) {
+              alert(response.message);
+            },
+            error: function (xhr) {
+              alert("Error: " + xhr.responseJSON.error);
+            },
+          });
+        });
+
+        // Analyze Inventory
+        $("#analyzeButton").click(function () {
+          // Step 1: Get AI analysis
+          $.ajax({
+            url: "/analyze_inventory",
+            type: "GET",
+            success: function (response) {
+              // Show AI analysis in text
+              $("#results").html(`<div class="markdown-content">${response.analysis}</div>`);
+
+              // Step 2: Fetch real stock and sales data for chart
+              $.ajax({
+                url: "/get_inventory_data",
+                type: "GET",
+                success: function (data) {
+
+                  console.log("✅ Data from backend:", data);
+                  console.log("📦 Stock data:", data.stocks);
+                  console.log("📈 Sales data:", data.sales);
+                  // ✅ Clear old charts if needed
+                 if (window.stockChart && typeof window.stockChart.destroy === "function") {
+                    window.stockChart.destroy();
+                  }
+
+                 if (window.salesChart && typeof window.salesChart.destroy === "function") {
+                    window.salesChart.destroy();
+                  }
+
+                  // 📦 Stock Chart
+                  const stockCtx = document.getElementById("stockChart").getContext("2d");
+                   window.stockChart = new Chart(stockCtx, {
+                    type: "bar",
+                    data: {
+                      labels: data.stocks.map(item => item.product_id),
+                      datasets: [{
+                        label: 'Stock Quantity',
+                        data: data.stocks.map(item => item.quantity),
+                        backgroundColor: '#4CAF50'
+                      }]
+                    },
+                    options: {
+                    animation: {
+                      duration: 1000, // in ms
+                      easing: 'easeInOutQuart' // or 'easeInOutElastic', etc.
+                    }
+                    }
+                  });
+
+                  // 📈 Sales Chart
+                  const salesCtx = document.getElementById("salesChart").getContext("2d");
+                   window.salesChart = new Chart(salesCtx, {
+                    type: "line",
+                    data: {
+                      labels: data.sales.map(item => item.date),
+                      datasets: [{
+                        label: 'Total Sales',
+                        data: data.sales.map(item => item.total_sales),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'blue',
+                        fill: false
+                      }]
+                    },
+                    options: {
+                    animation: {
+                      duration: 1200,
+                      easing: 'easeInOutQuart'
+                    }
+                    }
+                  });
+                },
+                error: function () {
+                  alert("Error: Failed to load chart data from the server");
+                }
+              });
+            },
+            error: function (xhr) {
+              $("#results").html(`<p class="error">Error: ${xhr.responseJSON.error}</p>`);
+            }
+          });
+        });
+
+                // Text Download
+        $("#downloadText").click(function () {
+          const content = $("#results").text();
+          const blob = new Blob([content], { type: "text/plain" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "inventory_analysis.txt";
+          link.click();
+        });
+
+        // PDF Download using jsPDF
+        $("#downloadPDF").click(function () {
+          const content = $("#results").text();
+          const doc = new window.jspdf.jsPDF();
+          doc.text(content, 10, 10);
+          doc.save("inventory_analysis.pdf");
+        });
+
+
+        // Chatbot
+        $("#chatForm").submit(function (e) {
+          e.preventDefault();
+          let userMessage = $("#userInput").val();
+          $("#chatbox").append(`<p class="user-message">${userMessage}</p>`);
+          chatLog.push("You: " + userMessage);
+
+          $.ajax({
+            url: "/chatbot",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ message: userMessage }),
+            success: function (response) {
+              $("#chatbox").append(`<div class="markdown-content">${response.response}</div>`);
+              chatLog.push("Bot: " + response.response);
+              $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+            },
+            error: function () {
+              const err = "Sorry, an error occurred.";
+              $("#chatbox").append(`<p class="bot-message">${err}</p>`);
+              chatLog.push("Bot: " + err);
+            },
+          });
+
+          $("#userInput").val("");
+        });
+
+        // 📦 Preloaded question buttons
+        $(".quick-question").click(function () {
+          const question = $(this).text();
+          $("#userInput").val(question);
+          $("#chatForm").submit();
+        });
+
+        // 💾 Download chat as .txt
+        $("#downloadChat").click(function () {
+          let blob = new Blob([chatLog.join("\n\n")], { type: "text/plain" });
+          let link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "chat_history.txt";
+          link.click();
+        });
+
+        // Transportation Route
+        $("#transportForm").submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            url: "/transport_route",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              start: $("#startPoint").val(),
+              destination: $("#destination").val(),
+            }),
+            success: function (response) {
+              $("#routeResults").html(`<div class="markdown-content">${response.route}</div>`);
+            },
+            error: function (xhr) {
+              alert("Error: " + xhr.responseJSON.error);
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

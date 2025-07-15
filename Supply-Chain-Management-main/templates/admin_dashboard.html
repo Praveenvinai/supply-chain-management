@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f8fc;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    header {
+      background: #4A90E2;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: 22px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 12px;
+      width: 50%;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: block;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #357ABD;
+    }
+
+    #results, #routeResults, #sessionList {
+      margin-top: 15px;
+    }
+
+    .logout {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .logout a {
+      text-decoration: none;
+      color: white;
+      background-color: #e74c3c;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .markdown-content {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>👑 Admin Dashboard</h1>
+    </header>
+
+    <!-- Update Stock -->
+    <div class="section">
+      <h2>📦 Update Stock</h2>
+      <form id="stockForm">
+        <input type="text" id="stockProductId" placeholder="Product ID" required />
+        <input type="number" id="stockQuantity" placeholder="Quantity" required />
+        <button type="submit">Update Stock</button>
+      </form>
+    </div>
+
+    <!-- Update Sales -->
+    <div class="section">
+      <h2>💰 Update Sales</h2>
+      <form id="salesForm">
+        <input type="text" id="salesProductId" placeholder="Product ID" required />
+        <input type="number" id="salesQuantity" placeholder="Quantity" required />
+        <button type="submit">Update Sales</button>
+      </form>
+    </div>
+
+    <!-- Analyze Inventory -->
+    <div class="section">
+      <h2>📊 Analyze Inventory</h2>
+      <button id="analyzeButton">Analyze</button>
+      <div id="results"></div>
+    </div>
+
+    <!-- Transport Route -->
+    <div class="section">
+      <h2>🚚 Transport Route</h2>
+      <form id="transportForm">
+        <input type="text" id="startPoint" placeholder="Start Point" required />
+        <input type="text" id="destination" placeholder="Destination" required />
+        <button type="submit">Find Route</button>
+      </form>
+      <div id="routeResults"></div>
+    </div>
+
+    <!-- User Sessions -->
+    <div class="section">
+      <h2>👥 Active Manager & Customer Sessions</h2>
+      <button onclick="loadSessions()">View Active Sessions</button>
+      <div id="sessionList"></div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout">
+      <a href="/logout">🔓 Logout</a>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $("#stockForm").submit(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: "/update_stock",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          product_id: $("#stockProductId").val(),
+          quantity: parseInt($("#stockQuantity").val())
+        }),
+        success: res => alert(res.message),
+        error: xhr => alert("❌ " + xhr.responseJSON.error)
+      });
+    });
+
+    $("#salesForm").submit(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: "/update_sales",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          product_id: $("#salesProductId").val(),
+          quantity: parseInt($("#salesQuantity").val())
+        }),
+        success: res => alert(res.message),
+        error: xhr => alert("❌ " + xhr.responseJSON.error)
+      });
+    });
+
+    $("#analyzeButton").click(function() {
+      $.ajax({
+        url: "/analyze_inventory",
+        type: "GET",
+        success: function(response) {
+          $("#results").html(`<div class="markdown-content">${response.analysis}</div>`);
+        },
+        error: function(xhr) {
+          $("#results").html(`<p class="error">❌ ${xhr.responseJSON.error}</p>`);
+        }
+      });
+    });
+
+    $("#transportForm").submit(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: "/transport_route",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          start: $("#startPoint").val(),
+          destination: $("#destination").val()
+        }),
+        success: function(response) {
+          $("#routeResults").html(`<div class="markdown-content">${response.route}</div>`);
+        },
+        error: function(xhr) {
+          $("#routeResults").html(`<p class="error">❌ ${xhr.responseJSON.error}</p>`);
+        }
+      });
+    });
+
+    function loadSessions() {
+      $.ajax({
+        url: "/active_sessions",
+        type: "GET",
+        success: function(data) {
+          let html = "<ul>";
+          data.sessions.forEach(s => {
+            html += `<li>👤 ${s.username} (${s.role}) - ${s.status}</li>`;
+          });
+          html += "</ul>";
+          $("#sessionList").html(html);
+        },
+        error: function() {
+          $("#sessionList").html("<p>⚠️ Could not load sessions.</p>");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

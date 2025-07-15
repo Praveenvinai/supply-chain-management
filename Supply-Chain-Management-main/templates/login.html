@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - Supply Chain System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      overflow: hidden;
+      max-width: 1200px;
+      width: 100%;
+      height: 600px;
+    }
+
+    .left-panel {
+      flex: 1.2;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .supply-chain-cycle {
+      position: relative;
+      width: 400px;
+      height: 400px;
+    }
+
+    .cycle-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .cycle-center h3 {
+      margin: 0;
+      font-size: 22px;
+      color: #ffffff;
+      font-weight: 300;
+    }
+
+    .cycle-item {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2c3e50;
+      font-size: 32px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+
+    .cycle-item:hover {
+      transform: scale(1.15);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+
+    .cycle-item.planning {
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+      color: white;
+    }
+
+    .cycle-item.sourcing {
+      top: 30%;
+      right: 10px;
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+      color: white;
+    }
+
+    .cycle-item.manufacturing {
+      bottom: 30%;
+      right: 10px;
+      background: linear-gradient(135deg, #45b7d1, #2196f3);
+      color: white;
+    }
+
+    .cycle-item.delivery {
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #96ceb4, #4caf50);
+      color: white;
+    }
+
+    .cycle-item.returns {
+      bottom: 30%;
+      left: 10px;
+      background: linear-gradient(135deg, #feca57, #ff9ff3);
+      color: white;
+    }
+
+    .cycle-item.enable {
+      top: 30%;
+      left: 10px;
+      background: linear-gradient(135deg, #a55eea, #8b5cf6);
+      color: white;
+    }
+
+    .cycle-label {
+      position: absolute;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      color: #ffffff;
+      background: rgba(255,255,255,0.1);
+      padding: 5px 10px;
+      border-radius: 15px;
+      backdrop-filter: blur(5px);
+    }
+
+    .label-planning {
+      top: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .label-sourcing {
+      top: 25%;
+      right: -70px;
+      width: 60px;
+    }
+
+    .label-manufacturing {
+      bottom: 25%;
+      right: -90px;
+      width: 80px;
+    }
+
+    .label-delivery {
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .label-returns {
+      bottom: 25%;
+      left: -60px;
+      width: 50px;
+    }
+
+    .label-enable {
+      top: 25%;
+      left: -55px;
+      width: 45px;
+    }
+
+    .connecting-line {
+      position: absolute;
+      width: 2px;
+      background: rgba(255,255,255,0.3);
+      z-index: 1;
+    }
+
+    .right-panel {
+      flex: 1;
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .login-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+      color: white;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .login-box h2 {
+      color: #2c3e50;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 300;
+    }
+
+    .login-subtitle {
+      color: #7f8c8d;
+      font-size: 14px;
+      margin-top: 8px;
+      font-weight: 300;
+    }
+
+    .input-group {
+      position: relative;
+      margin-top: 25px;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 18px 18px 18px 55px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      background: #f8f9fa;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: #fff;
+    }
+
+    input:focus + .input-icon {
+      color: #667eea;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 2;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: #667eea;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 30px;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 18px;
+      border-radius: 12px;
+      box-sizing: border-box;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .login-footer a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .system-title {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #ffffff;
+    }
+
+    .system-title h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 300;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .system-title p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        max-width: 400px;
+      }
+      
+      .left-panel {
+        padding: 20px;
+        min-height: 200px;
+      }
+      
+      .supply-chain-cycle {
+        width: 200px;
+        height: 200px;
+      }
+      
+      .cycle-item {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <div class="system-title">
+        <h1>Supply Chain</h1>
+        <p>Management System</p>
+      </div>
+      
+      <div class="supply-chain-cycle">
+        <div class="cycle-center">
+          <h3>SCOR<br>Model</h3>
+        </div>
+        
+        <div class="cycle-item planning">📊</div>
+        <div class="cycle-label label-planning">Planning</div>
+        
+        <div class="cycle-item sourcing">🏪</div>
+        <div class="cycle-label label-sourcing">Sourcing</div>
+        
+        <div class="cycle-item manufacturing">🏭</div>
+        <div class="cycle-label label-manufacturing">Manufacturing</div>
+        
+        <div class="cycle-item delivery">🚛</div>
+        <div class="cycle-label label-delivery">Delivery</div>
+        
+        <div class="cycle-item returns">🔄</div>
+        <div class="cycle-label label-returns">Returns</div>
+        
+        <div class="cycle-item enable">⚡</div>
+        <div class="cycle-label label-enable">Enable</div>
+      </div>
+    </div>
+    
+    <div class="right-panel">
+      <div class="login-box">
+        <div class="login-header">
+          <div class="login-icon">🔐</div>
+          <h2>Welcome Back</h2>
+          <p class="login-subtitle">Sign in to your supply chain dashboard</p>
+        </div>
+        
+        <form method="POST" action="/login">
+          <div class="input-group">
+            <div class="input-icon">👤</div>
+            <input type="text" name="username" placeholder="Username" required />
+          </div>
+          
+          <div class="input-group">
+            <div class="input-icon">🔑</div>
+            <input type="password" name="password" placeholder="Password" required id="password" />
+            <div class="password-toggle" onclick="togglePassword()">👁️</div>
+          </div>
+          
+          <button type="submit">
+            <span>🚀</span>
+            Sign In
+          </button>
+        </form>
+        
+        <div class="login-footer">
+          <a href="#forgot">Forgot Password?</a> | <a href="#support">Need Help?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.querySelector('.password-toggle');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+      }
+    }
+  </script>
+</body>
+</html>

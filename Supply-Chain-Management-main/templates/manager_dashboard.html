@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manager Dashboard - Supply Chain Operations</title>
+    <!-- Using a Google Font for better aesthetics -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #3498db;
+            --dark-blue: #2c3e50;
+            --light-gray: #ecf0f1;
+            --medium-gray: #bdc3c7;
+            --dark-gray-text: #34495e;
+            --success-green: #2ecc71;
+            --warning-orange: #f39c12;
+            --error-red: #e74c3c;
+            --background-light: #f7f9fb;
+            --card-background: #ffffff;
+            --border-color: #e0e6ea;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background-light);
+            margin: 0;
+            padding: 0;
+            color: var(--dark-gray-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px; /* Wider container for more content space */
+            margin: 40px auto; /* Centered with top/bottom margin */
+            padding: 0 25px; /* Side padding */
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-blue), #2980b9); /* Gradient blue */
+            color: white;
+            padding: 25px 35px;
+            border-radius: 12px; /* More rounded corners */
+            margin-bottom: 40px; /* More space below header */
+            box-shadow: 0 8px 20px var(--shadow-medium); /* Stronger shadow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header h1 .icon {
+            font-size: 36px; /* Larger icon */
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent background */
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        header a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .content {
+            display: flex;
+            /* No gap here, as the main-section will handle its own internal grid gap */
+        }
+
+        .main-section {
+            flex-grow: 1; /* Takes available space */
+            display: grid;
+            /* Two columns, each taking equal space, minimum 300px for content */
+            grid-template-columns: repeat(2, minmax(300px, 1fr));
+            gap: 30px; /* Gap between grid items */
+            align-items: start; /* Align items to the top of their grid area */
+        }
+
+        .section {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px var(--shadow-light); /* Subtle shadow for cards */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Hover effect */
+        }
+
+        .section:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+
+        /* Make Analyze Inventory span all columns */
+        .main-section .section:last-child { /* Targets the last section, which is Analyze Inventory */
+            grid-column: 1 / -1; /* Start from first column, end before last (span all) */
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: var(--primary-blue); /* Section titles in primary blue */
+            border-bottom: 2px solid var(--border-color); /* Stronger separator */
+            padding-bottom: 15px;
+            margin-bottom: 20px; /* Reduced to minimize white space */
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 14px;
+            width: calc(100% - 28px); /* Full width minus padding */
+            margin-bottom: 15px; /* Reduced to minimize white space */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: block;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: var(--dark-gray-text);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Focus glow */
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: var(--success-green); /* Action button in green */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 10px; /* Space above button */
+        }
+
+        button:hover {
+            background: #27ae60; /* Slightly darker green */
+            transform: translateY(-1px); /* Slight press effect */
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: var(--medium-gray);
+            cursor: not-allowed;
+        }
+
+        #results {
+            margin-top: 25px; /* Space between button and results */
+            padding: 20px;
+            background-color: var(--background-light);
+            border-radius: 8px;
+            border: 1px dashed var(--border-color); /* Dashed border for results */
+            min-height: 50px; /* Ensure some visibility even if empty */
+            overflow-x: auto; /* Allow horizontal scroll for markdown content if needed */
+        }
+
+        .markdown-content {
+            background: #f9fbfc; /* Lighter background for markdown */
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            border: 1px solid #e9eff3;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        /* Chart specific styling */
+        canvas {
+            max-width: 100%;
+            height: 300px; /* Fixed height for consistency */
+            margin-top: 25px; /* Space above charts */
+            background: #fdfdfd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 0 15px;
+            }
+            header {
+                padding: 20px;
+                flex-direction: column; /* Stack header items on small screens */
+                align-items: flex-start;
+                gap: 15px;
+            }
+            header h1 {
+                font-size: 28px;
+            }
+            .main-section {
+                grid-template-columns: 1fr; /* Single column layout on small screens */
+            }
+            /* Ensure Analyze Inventory still spans full width on small screens */
+            .main-section .section:last-child {
+                grid-column: auto; /* Revert to auto on small screens to fit single column */
+            }
+            .section {
+                padding: 20px;
+            }
+            input[type="text"],
+            input[type="number"] {
+                width: calc(100% - 28px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="icon">📦</span> Manager Dashboard</h1>
+            <a href="/logout">Logout</a>
+        </header>
+
+        <div class="content">
+            <div class="main-section">
+                <!-- Stock Update -->
+                <div class="section">
+                    <h2>Update Stock</h2>
+                    <form id="stockForm">
+                        <input type="text" id="stockProductId" placeholder="Product ID" required />
+                        <input type="number" id="stockQuantity" placeholder="Quantity" required />
+                        <button type="submit">Update Stock</button>
+                    </form>
+                </div>
+
+                <!-- Sales Update -->
+                <div class="section">
+                    <h2>Update Sales</h2>
+                    <form id="salesForm">
+                        <input type="text" id="salesProductId" placeholder="Product ID" required />
+                        <input type="number" id="salesQuantity" placeholder="Quantity" required />
+                        <button type="submit">Update Sales</button>
+                    </form>
+                </div>
+
+                <!-- Analysis -->
+                <div class="section">
+                    <h2>Analyze Inventory</h2>
+                    <button id="analyzeButton">Analyze Inventory</button>
+                    <div id="results" class="markdown-content"></div>
+                    <canvas id="stockChart"></canvas>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            <!-- The conditional blocks for other roles are outside .main-section -->
+            {% if role != 'manager' %}
+            <div class="transportation-section" style="display:none;">
+                <!-- Transport form -->
+            </div>
+
+            <div class="chatbot-section" style="display:none;">
+                <!-- Chatbot UI -->
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+<script>
+let stockChartInstance = null;
+let salesChartInstance = null;
+
+$("#stockForm").submit(function(e) {
+    e.preventDefault();
+    $.ajax({
+        url: "/update_stock",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            product_id: $("#stockProductId").val(),
+            quantity: parseInt($("#stockQuantity").val())
+        }),
+        success: function(res) {
+            alert(res.message);
+            $("#stockForm")[0].reset();
+        },
+        error: function(xhr) {
+            alert("Error: " + (xhr.responseJSON?.error || "Unknown error"));
+        }
+    });
+});
+
+$("#salesForm").submit(function(e) {
+    e.preventDefault();
+    $.ajax({
+        url: "/update_sales",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            product_id: $("#salesProductId").val(),
+            quantity: parseInt($("#salesQuantity").val())
+        }),
+        success: function(res) {
+            alert(res.message);
+            $("#salesForm")[0].reset();
+        },
+        error: function(xhr) {
+            alert("Error: " + (xhr.responseJSON?.error || "Unknown error"));
+        }
+    });
+});
+
+$("#analyzeButton").click(function() {
+    $.ajax({
+        url: "/analyze_inventory",
+        type: "GET",
+        success: function(response) {
+            $("#results").html(`<div>${response.analysis}</div>`);
+
+            // Stock Chart
+            const stockCtx = document.getElementById("stockChart").getContext("2d");
+            if (stockChartInstance) stockChartInstance.destroy();
+            stockChartInstance = new Chart(stockCtx, {
+                type: 'bar',
+                data: {
+                    labels: response.stock_data.labels,
+                    datasets: [{
+                        label: 'Current Stock',
+                        data: response.stock_data.data,
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        borderColor: '#2980b9',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { title: { display: true, text: 'Stock Overview' }},
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { title: { display: true, text: "Product ID" } }
+                    }
+                }
+            });
+
+            // Sales Chart
+            const salesCtx = document.getElementById("salesChart").getContext("2d");
+            if (salesChartInstance) salesChartInstance.destroy();
+            salesChartInstance = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: response.sales_data.labels,
+                    datasets: [{
+                        label: 'Sales Trend',
+                        data: response.sales_data.data,
+                        fill: true,
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { title: { display: true, text: 'Sales Trend Over Time' }},
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { title: { display: true, text: "Date" } }
+                    }
+                }
+            });
+
+        },
+        error: function(xhr) {
+            $("#results").html(`<p style="color:red;">❌ ${xhr.responseJSON?.error || "Failed to analyze."}</p>`);
+        }
+    });
+});
+
+// This part comes from your original code. It controls disabling elements based on role.
+const userRole = "{{ role }}"; // This depends on your backend passing the role.
+
+if (userRole === "manager") {
+    // These sections are conditionally rendered (or not) by Flask,
+    // but if they were to exist, this would disable them.
+    // Based on the provided HTML, `transportation-section` and `chatbot-section`
+    // are explicitly hidden if `role == 'manager'`
+    if ($(".transportation-section").length) { // Check if the element exists
+        $(".transportation-section").find("button, input").prop("disabled", true).prop("readonly", true);
+    }
+    if ($(".chatbot-section").length) { // Check if the element exists
+        $(".chatbot-section").find("button, input").prop("disabled", true).prop("readonly", true);
+    }
+}
+</script>
+</body>
+</html>

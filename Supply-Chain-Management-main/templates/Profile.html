@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>👤 My Profile</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 40px;
+    }
+    .profile-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #333;
+    }
+    .field {
+      margin: 15px 0;
+    }
+    .field label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-box">
+    <h2>👤 My Profile</h2>
+    <div class="field">
+      <label>Username:</label>
+      <div>{{ user.username }}</div>
+    </div>
+    <div class="field">
+      <label>Role:</label>
+      <div>{{ user.role }}</div>
+    </div>
+    <div class="field">
+      <label>Last Login:</label>
+      <div>{{ user.last_login or "First time login" }}</div>
+    </div>
+    <div style="margin-top: 20px;">
+      <a href="/logout">🔓 Logout</a>
+    </div>
+  </div>
+</body>
+</html>
